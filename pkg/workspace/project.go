@@ -85,7 +85,7 @@ const (
 	UpdatedButUnmerged Status = "Updated but unmerged"
 )
 
-func GetProjectEnvVars(project *Project, apiUrl, serverUrl string) map[string]string {
+func GetProjectEnvVars(project *Project, apiUrl, serverUrl string, telemetryEnabled bool) map[string]string {
 	envVars := map[string]string{
 		"DAYTONA_WS_ID":                     project.WorkspaceId,
 		"DAYTONA_WS_PROJECT_NAME":           project.Name,
@@ -96,6 +96,10 @@ func GetProjectEnvVars(project *Project, apiUrl, serverUrl string) map[string]st
 		"DAYTONA_SERVER_API_URL":            apiUrl,
 		// (HOME) will be replaced at runtime
 		"DAYTONA_AGENT_LOG_FILE_PATH": "(HOME)/.daytona-agent.log",
+	}
+
+	if telemetryEnabled {
+		envVars["DAYTONA_TELEMETRY_ENABLED"] = "true"
 	}
 
 	return envVars

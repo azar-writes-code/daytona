@@ -4,6 +4,7 @@
 package workspaces
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"regexp"
@@ -15,10 +16,13 @@ import (
 	"github.com/daytonaio/daytona/pkg/logs"
 	"github.com/daytonaio/daytona/pkg/provider"
 	"github.com/daytonaio/daytona/pkg/server/workspaces/dto"
+	"github.com/daytonaio/daytona/pkg/telemetry"
 	"github.com/daytonaio/daytona/pkg/workspace"
+
+	log "github.com/sirupsen/logrus"
 )
 
-func (s *WorkspaceService) CreateWorkspace(req dto.CreateWorkspaceRequest) (*workspace.Workspace, error) {
+func (s *WorkspaceService) CreateWorkspace(ctx context.Context, req dto.CreateWorkspaceRequest) (*workspace.Workspace, error) {
 	_, err := s.workspaceStore.Find(req.Name)
 	if err == nil {
 		return nil, ErrWorkspaceAlreadyExists
@@ -91,7 +95,29 @@ func (s *WorkspaceService) CreateWorkspace(req dto.CreateWorkspaceRequest) (*wor
 		return nil, err
 	}
 
-	return s.createWorkspace(w)
+	target, err := s.targetStore.Find(w.Target)
+	if err != nil {
+		return w, err
+	}
+
+	w, err = s.createWorkspace(ctx, w, target)
+
+	if !telemetry.TelemetryEnabled(ctx) {
+		return w, err
+	}
+
+	telemetryProps := telemetry.NewWorkspaceEventProps(w, target)
+	event := telemetry.ServerEventWorkspaceCreated
+	if err != nil {
+		telemetryProps["error"] = err.Error()
+		event = telemetry.ServerEventWorkspaceCreateError
+	}
+	telemetryError := s.telemetryService.TrackServerEvent(event, w.Id, telemetryProps)
+	if telemetryError != nil {
+		log.Trace(err)
+	}
+
+	return w, err
 }
 
 func (s *WorkspaceService) createBuild(project *workspace.Project, gc *gitprovider.GitProviderConfig, logWriter io.Writer) (*workspace.Project, error) {
@@ -173,18 +199,13 @@ func (s *WorkspaceService) createProject(project *workspace.Project, target *pro
 	return nil
 }
 
-func (s *WorkspaceService) createWorkspace(ws *workspace.Workspace) (*workspace.Workspace, error) {
-	target, err := s.targetStore.Find(ws.Target)
-	if err != nil {
-		return ws, err
-	}
-
+func (s *WorkspaceService) createWorkspace(ctx context.Context, ws *workspace.Workspace, target *provider.ProviderTarget) (*workspace.Workspace, error) {
 	wsLogger := s.loggerFactory.CreateWorkspaceLogger(ws.Id, logs.LogSourceServer)
 	defer wsLogger.Close()
 
 	wsLogger.Write([]byte(fmt.Sprintf("Creating workspace %s (%s)\n", ws.Name, ws.Id)))
 
-	err = s.provisioner.CreateWorkspace(ws, target)
+	err := s.provisioner.CreateWorkspace(ws, target)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +217,7 @@ func (s *WorkspaceService) createWorkspace(ws *workspace.Workspace) (*workspace.
 		gc, _ := s.gitProviderService.GetConfigForUrl(project.Repository.Url)
 
 		projectWithEnv := *project
-		projectWithEnv.EnvVars = workspace.GetProjectEnvVars(project, s.serverApiUrl, s.serverUrl)
+		projectWithEnv.EnvVars = workspace.GetProjectEnvVars(project, s.serverApiUrl, s.serverUrl, telemetry.TelemetryEnabled(ctx))
 
 		for k, v := range project.EnvVars {
 			projectWithEnv.EnvVars[k] = v
@@ -223,7 +244,7 @@ func (s *WorkspaceService) createWorkspace(ws *workspace.Workspace) (*workspace.
 
 	wsLogger.Write([]byte("Workspace creation complete. Pending start...\n"))
 
-	err = s.startWorkspace(ws, target, wsLogger)
+	err = s.startWorkspace(ctx, ws, target, wsLogger)
 	if err != nil {
 		return nil, err
 	}

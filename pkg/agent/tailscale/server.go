@@ -21,8 +21,9 @@ import (
 )
 
 type Server struct {
-	Hostname string
-	Server   config.DaytonaServerConfig
+	Hostname         string
+	Server           config.DaytonaServerConfig
+	TelemetryEnabled bool
 }
 
 func (s *Server) Start() error {
@@ -63,7 +64,7 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) getNetworkKey() (string, error) {
-	apiClient, err := apiclient_util.GetAgentApiClient(s.Server.ApiUrl, s.Server.ApiKey)
+	apiClient, err := apiclient_util.GetAgentApiClient(s.Server.ApiUrl, s.Server.ApiKey, s.TelemetryEnabled)
 	if err != nil {
 		return "", err
 	}

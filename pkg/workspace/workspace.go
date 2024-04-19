@@ -37,7 +37,7 @@ type WorkspaceEnvVarParams struct {
 	ServerVersion string
 }
 
-func GetWorkspaceEnvVars(workspace *Workspace, params WorkspaceEnvVarParams) map[string]string {
+func GetWorkspaceEnvVars(workspace *Workspace, params WorkspaceEnvVarParams, telemetryEnabled bool) map[string]string {
 	envVars := map[string]string{
 		"DAYTONA_WS_ID":          workspace.Id,
 		"DAYTONA_SERVER_API_KEY": params.ApiKey,
@@ -46,6 +46,10 @@ func GetWorkspaceEnvVars(workspace *Workspace, params WorkspaceEnvVarParams) map
 		"DAYTONA_SERVER_API_URL": params.ApiUrl,
 		// (HOME) will be replaced at runtime
 		"DAYTONA_AGENT_LOG_FILE_PATH": "(HOME)/.daytona-agent.log",
+	}
+
+	if telemetryEnabled {
+		envVars["DAYTONA_TELEMETRY_ENABLED"] = "true"
 	}
 
 	return envVars

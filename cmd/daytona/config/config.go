@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/daytonaio/daytona/internal"
 )
 
 type ServerApi struct {
@@ -23,9 +25,10 @@ type Profile struct {
 }
 
 type Config struct {
-	ActiveProfileId string    `json:"activeProfile"`
-	DefaultIdeId    string    `json:"defaultIde"`
-	Profiles        []Profile `json:"profiles"`
+	ActiveProfileId  string    `json:"activeProfile"`
+	DefaultIdeId     string    `json:"defaultIde"`
+	Profiles         []Profile `json:"profiles"`
+	TelemetryEnabled bool      `json:"telemetryEnabled"`
 }
 
 type Ide struct {
@@ -154,6 +157,18 @@ func (c *Config) GetProfile(profileId string) (Profile, error) {
 	return Profile{}, errors.New("profile not found")
 }
 
+func (c *Config) EnableTelemetry() error {
+	c.TelemetryEnabled = true
+
+	return c.Save()
+}
+
+func (c *Config) DisableTelemetry() error {
+	c.TelemetryEnabled = false
+
+	return c.Save()
+}
+
 func getConfigPath() (string, error) {
 	configDir, err := GetConfigDir()
 	if err != nil {
@@ -184,4 +199,19 @@ func DeleteConfigDir() error {
 	}
 
 	return nil
+}
+
+func TelemetryEnabled() (bool, error) {
+	telemetryEnabled := false
+
+	if internal.WorkspaceMode() {
+		return os.Getenv("DAYTONA_TELEMETRY_ENABLED") == "true", nil
+	}
+
+	c, err := GetConfig()
+	if err != nil {
+		return telemetryEnabled, err
+	}
+
+	return c.TelemetryEnabled, nil
 }
