@@ -594,6 +594,109 @@ const docTemplate = `{
                 }
             }
         },
+        "/project-config": {
+            "get": {
+                "description": "List project configs",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "project-config"
+                ],
+                "summary": "List project configs",
+                "operationId": "ListProjectConfigs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ProjectConfig"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Set project config data",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "project-config"
+                ],
+                "summary": "Set project config data",
+                "operationId": "SetProjectConfig",
+                "parameters": [
+                    {
+                        "description": "Project config",
+                        "name": "projectConfig",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateProjectConfigDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/project-config/{configName}": {
+            "get": {
+                "description": "Get project config data",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "project-config"
+                ],
+                "summary": "Get project config data",
+                "operationId": "GetProjectConfig",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Config name",
+                        "name": "configName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectConfig"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete project config data",
+                "tags": [
+                    "project-config"
+                ],
+                "summary": "Delete project config data",
+                "operationId": "DeleteProjectConfig",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Config name",
+                        "name": "configName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/provider": {
             "get": {
                 "description": "List providers",
@@ -896,7 +999,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/CreateWorkspaceRequest"
+                            "$ref": "#/definitions/CreateWorkspaceDTO"
                         }
                     }
                 ],
@@ -1149,34 +1252,8 @@ const docTemplate = `{
                 }
             }
         },
-        "CreateWorkspaceRequest": {
+        "CreateProjectConfigDTO": {
             "type": "object",
-            "required": [
-                "projects"
-            ],
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "projects": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/CreateWorkspaceRequestProject"
-                    }
-                },
-                "target": {
-                    "type": "string"
-                }
-            }
-        },
-        "CreateWorkspaceRequestProject": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
             "properties": {
                 "build": {
                     "$ref": "#/definitions/ProjectBuild"
@@ -1194,18 +1271,70 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "source": {
-                    "$ref": "#/definitions/CreateWorkspaceRequestProjectSource"
+                    "$ref": "#/definitions/CreateProjectConfigSourceDTO"
                 },
                 "user": {
                     "type": "string"
                 }
             }
         },
-        "CreateWorkspaceRequestProjectSource": {
+        "CreateProjectConfigSourceDTO": {
             "type": "object",
             "properties": {
                 "repository": {
                     "$ref": "#/definitions/GitRepository"
+                }
+            }
+        },
+        "CreateProjectDTO": {
+            "type": "object",
+            "properties": {
+                "build": {
+                    "$ref": "#/definitions/ProjectBuild"
+                },
+                "envVars": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "existingProjectConfigName": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/CreateProjectConfigSourceDTO"
+                },
+                "user": {
+                    "type": "string"
+                }
+            }
+        },
+        "CreateWorkspaceDTO": {
+            "type": "object",
+            "required": [
+                "projects"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CreateProjectDTO"
+                    }
+                },
+                "target": {
+                    "type": "string"
                 }
             }
         },
@@ -1442,6 +1571,26 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "devContainerFilePath": {
+                    "type": "string"
+                }
+            }
+        },
+        "ProjectConfig": {
+            "type": "object",
+            "properties": {
+                "build": {
+                    "$ref": "#/definitions/ProjectBuild"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "repository": {
+                    "$ref": "#/definitions/GitRepository"
+                },
+                "user": {
                     "type": "string"
                 }
             }

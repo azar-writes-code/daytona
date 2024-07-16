@@ -18,22 +18,23 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var DoneConfiguring = apiclient.CreateWorkspaceRequestProject{Name: "DoneConfiguringName"}
+var doneConfiguringName = "DoneConfiguringName"
+var DoneConfiguring = apiclient.CreateProjectDTO{Name: &doneConfiguringName}
 
 type projectRequestItem struct {
-	item[apiclient.CreateWorkspaceRequestProject]
+	item[apiclient.CreateProjectDTO]
 	name, image, user, devcontainerConfig string
-	project                               apiclient.CreateWorkspaceRequestProject
+	project                               apiclient.CreateProjectDTO
 }
 
 type projectRequestItemDelegate struct {
-	ItemDelegate[apiclient.CreateWorkspaceRequestProject]
+	ItemDelegate[apiclient.CreateProjectDTO]
 }
 type projectRequestModel struct {
-	model[apiclient.CreateWorkspaceRequestProject]
+	model[apiclient.CreateProjectDTO]
 }
 
-func selectProjectRequestPrompt(projects *[]apiclient.CreateWorkspaceRequestProject, choiceChan chan<- *apiclient.CreateWorkspaceRequestProject) {
+func selectProjectRequestPrompt(projects *[]apiclient.CreateProjectDTO, choiceChan chan<- *apiclient.CreateProjectDTO) {
 	items := []list.Item{}
 
 	for _, project := range *projects {
@@ -42,7 +43,7 @@ func selectProjectRequestPrompt(projects *[]apiclient.CreateWorkspaceRequestProj
 		var user string
 		var devcontainerConfig string
 
-		if project.Name != "" {
+		if project.Name != nil {
 			name = fmt.Sprintf("%s %s", "Project:", project.Name)
 		}
 		if project.Image != nil {
@@ -95,8 +96,8 @@ func selectProjectRequestPrompt(projects *[]apiclient.CreateWorkspaceRequestProj
 	}
 }
 
-func GetProjectRequestFromPrompt(projects *[]apiclient.CreateWorkspaceRequestProject) *apiclient.CreateWorkspaceRequestProject {
-	choiceChan := make(chan *apiclient.CreateWorkspaceRequestProject)
+func GetProjectRequestFromPrompt(projects *[]apiclient.CreateProjectDTO) *apiclient.CreateProjectDTO {
+	choiceChan := make(chan *apiclient.CreateProjectDTO)
 
 	go selectProjectRequestPrompt(projects, choiceChan)
 
