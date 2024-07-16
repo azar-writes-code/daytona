@@ -15,7 +15,7 @@ type BuilderConfig struct {
 	ContainerRegistryService containerregistries.IContainerRegistryService
 	ServerConfigFolder       string
 	ContainerRegistryServer  string
-	BuildResultStore         Store
+	BuildStore               Store
 	// Namespace to be used when tagging and pushing the build image
 	BuildImageNamespace string
 	BasePath            string
@@ -25,10 +25,10 @@ type BuilderConfig struct {
 }
 
 type IBuilder interface {
-	Build() (*BuildResult, error)
+	Build() (*Build, error)
 	CleanUp() error
 	Publish() error
-	SaveBuildResults(r BuildResult) error
+	SaveBuilds(r Build) error
 }
 
 type Builder struct {
@@ -42,7 +42,7 @@ type Builder struct {
 	containerRegistryService containerregistries.IContainerRegistryService
 	containerRegistryServer  string
 	buildImageNamespace      string
-	buildResultStore         Store
+	buildStore               Store
 	serverConfigFolder       string
 	basePath                 string
 	loggerFactory            logs.LoggerFactory
@@ -50,6 +50,6 @@ type Builder struct {
 	defaultProjectUser       string
 }
 
-func (b *Builder) SaveBuildResults(r BuildResult) error {
-	return b.buildResultStore.Save(&r)
+func (b *Builder) SaveBuilds(r Build) error {
+	return b.buildStore.Save(&r)
 }

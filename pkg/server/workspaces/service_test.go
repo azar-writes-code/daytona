@@ -84,8 +84,6 @@ func TestWorkspaceService(t *testing.T) {
 
 	logsDir := t.TempDir()
 
-	mockBuilderFactory := &mocks.MockBuilderFactory{}
-
 	service := workspaces.NewWorkspaceService(workspaces.WorkspaceServiceConfig{
 		WorkspaceStore:           workspaceStore,
 		TargetStore:              targetStore,
@@ -98,7 +96,6 @@ func TestWorkspaceService(t *testing.T) {
 		Provisioner:              provisioner,
 		LoggerFactory:            logs.NewLoggerFactory(logsDir),
 		GitProviderService:       gitProviderService,
-		BuilderFactory:           mockBuilderFactory,
 	})
 
 	t.Run("CreateWorkspace", func(t *testing.T) {

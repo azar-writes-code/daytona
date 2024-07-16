@@ -7,7 +7,6 @@ import (
 	"errors"
 	"io"
 
-	"github.com/daytonaio/daytona/pkg/build"
 	"github.com/daytonaio/daytona/pkg/logs"
 	"github.com/daytonaio/daytona/pkg/provider"
 	"github.com/daytonaio/daytona/pkg/provisioner"
@@ -49,7 +48,6 @@ type WorkspaceServiceConfig struct {
 	ApiKeyService            apikeys.IApiKeyService
 	LoggerFactory            logs.LoggerFactory
 	GitProviderService       gitproviders.IGitProviderService
-	BuilderFactory           build.IBuilderFactory
 }
 
 func NewWorkspaceService(config WorkspaceServiceConfig) IWorkspaceService {
@@ -65,7 +63,6 @@ func NewWorkspaceService(config WorkspaceServiceConfig) IWorkspaceService {
 		loggerFactory:            config.LoggerFactory,
 		apiKeyService:            config.ApiKeyService,
 		gitProviderService:       config.GitProviderService,
-		builderFactory:           config.BuilderFactory,
 	}
 }
 
@@ -81,7 +78,6 @@ type WorkspaceService struct {
 	defaultProjectUser       string
 	loggerFactory            logs.LoggerFactory
 	gitProviderService       gitproviders.IGitProviderService
-	builderFactory           build.IBuilderFactory
 }
 
 func (s *WorkspaceService) SetProjectState(workspaceId, projectName string, state *workspace.ProjectState) (*workspace.Workspace, error) {

@@ -5,42 +5,53 @@
 
 package build
 
-import "github.com/daytonaio/daytona/pkg/build"
+import t_build "github.com/daytonaio/daytona/pkg/build"
 
 type InMemoryBuildStore struct {
-	buildResults map[string]*build.BuildResult
+	builds map[string]*t_build.Build
 }
 
-func NewInMemoryBuildStore() build.Store {
+func NewInMemoryBuildStore() t_build.Store {
 	return &InMemoryBuildStore{
-		buildResults: make(map[string]*build.BuildResult),
+		builds: make(map[string]*t_build.Build),
 	}
 }
 
-func (s *InMemoryBuildStore) List() ([]*build.BuildResult, error) {
-	buildResults := []*build.BuildResult{}
-	for _, a := range s.buildResults {
-		buildResults = append(buildResults, a)
-	}
-
-	return buildResults, nil
-}
-
-func (s *InMemoryBuildStore) Find(hash string) (*build.BuildResult, error) {
-	buildResult, ok := s.buildResults[hash]
+func (s *InMemoryBuildStore) Find(hash string) (*t_build.Build, error) {
+	build, ok := s.builds[hash]
 	if !ok {
-		return nil, build.ErrBuildNotFound
+		return nil, t_build.ErrBuildNotFound
 	}
 
-	return buildResult, nil
+	return build, nil
 }
 
-func (s *InMemoryBuildStore) Save(buildResult *build.BuildResult) error {
-	s.buildResults[buildResult.Hash] = buildResult
+func (s *InMemoryBuildStore) FindAllByState(state t_build.BuildState) ([]*t_build.Build, error) {
+	builds := []*t_build.Build{}
+	for _, build := range s.builds {
+		if build.State == state {
+			builds = append(builds, build)
+		}
+	}
+
+	return builds, nil
+}
+
+func (s *InMemoryBuildStore) List() ([]*t_build.Build, error) {
+	build := []*t_build.Build{}
+	for _, a := range s.builds {
+		build = append(build, a)
+	}
+
+	return build, nil
+}
+
+func (s *InMemoryBuildStore) Save(build *t_build.Build) error {
+	s.builds[build.Hash] = build
 	return nil
 }
 
 func (s *InMemoryBuildStore) Delete(hash string) error {
-	delete(s.buildResults, hash)
+	delete(s.builds, hash)
 	return nil
 }

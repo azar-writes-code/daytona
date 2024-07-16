@@ -12,9 +12,9 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var MockBuildResults = &build.BuildResult{
+var MockBuilds = &build.Build{
 	User:              "test",
-	ImageName:         "test",
+	Image:             "test",
 	ProjectVolumePath: "test",
 }
 
@@ -30,16 +30,16 @@ func (f *MockBuilderFactory) Create(p workspace.Project, gpc *gitprovider.GitPro
 	return &mockBuilder{}, nil
 }
 
-func (f *MockBuilderFactory) CheckExistingBuild(p workspace.Project) (*build.BuildResult, error) {
-	return MockBuildResults, nil
+func (f *MockBuilderFactory) CheckExistingBuild(p workspace.Project) (*build.Build, error) {
+	return MockBuilds, nil
 }
 
 type mockBuilder struct {
 	mock.Mock
 }
 
-func (b *mockBuilder) Build() (*build.BuildResult, error) {
-	return MockBuildResults, nil
+func (b *mockBuilder) Build() (*build.Build, error) {
+	return MockBuilds, nil
 }
 
 func (b *mockBuilder) CleanUp() error {
@@ -50,7 +50,7 @@ func (b *mockBuilder) Publish() error {
 	return nil
 }
 
-func (p *mockBuilder) SaveBuildResults(r build.BuildResult) error {
+func (p *mockBuilder) SaveBuilds(r build.Build) error {
 	args := p.Called(r)
 	return args.Error(0)
 }

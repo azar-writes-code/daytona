@@ -36,12 +36,12 @@ type BuildOutcome struct {
 
 type DevcontainerBuilder struct {
 	*Builder
-	buildImageName    string
+	buildImage        string
 	user              string
 	builderDockerPort uint16
 }
 
-func (b *DevcontainerBuilder) Build() (*BuildResult, error) {
+func (b *DevcontainerBuilder) Build() (*Build, error) {
 	err := b.startContainer()
 	if err != nil {
 		return nil, err
@@ -52,10 +52,12 @@ func (b *DevcontainerBuilder) Build() (*BuildResult, error) {
 		return nil, err
 	}
 
-	return &BuildResult{
+	return &Build{
 		Hash:              b.hash,
+		State:             BuildStateSuccess,
+		Project:           b.project,
 		User:              b.user,
-		ImageName:         b.buildImageName,
+		Image:             b.buildImage,
 		ProjectVolumePath: b.projectVolumePath,
 	}, nil
 }
@@ -101,7 +103,7 @@ func (b *DevcontainerBuilder) Publish() error {
 		return err
 	}
 
-	return dockerClient.PushImage(b.buildImageName, cr, projectLogger)
+	return dockerClient.PushImage(b.buildImage, cr, projectLogger)
 }
 
 func (b *DevcontainerBuilder) buildDevcontainer() error {
@@ -190,7 +192,7 @@ func (b *DevcontainerBuilder) buildDevcontainer() error {
 		return err
 	}
 
-	b.buildImageName = imageName
+	b.buildImage = imageName
 
 	return nil
 }

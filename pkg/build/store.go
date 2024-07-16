@@ -6,9 +6,10 @@ package build
 import "errors"
 
 type Store interface {
-	Find(hash string) (*BuildResult, error)
-	List() ([]*BuildResult, error)
-	Save(buildResult *BuildResult) error
+	Find(hash string) (*Build, error)
+	FindAllByState(state BuildState) ([]*Build, error)
+	List() ([]*Build, error)
+	Save(build *Build) error
 	Delete(hash string) error
 }
 

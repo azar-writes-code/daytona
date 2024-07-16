@@ -4,12 +4,10 @@
 package build
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/daytonaio/daytona/pkg/build/detect"
 	"github.com/daytonaio/daytona/pkg/git"
@@ -24,14 +22,14 @@ import (
 
 type IBuilderFactory interface {
 	Create(p workspace.Project, gpc *gitprovider.GitProviderConfig) (IBuilder, error)
-	CheckExistingBuild(p workspace.Project) (*BuildResult, error)
+	CheckExistingBuild(p workspace.Project) (*Build, error)
 }
 
 type BuilderFactory struct {
 	serverConfigFolder       string
 	containerRegistryServer  string
 	buildImageNamespace      string
-	buildResultStore         Store
+	buildStore               Store
 	basePath                 string
 	loggerFactory            logs.LoggerFactory
 	image                    string
@@ -52,7 +50,7 @@ func NewBuilderFactory(config BuilderFactoryConfig) IBuilderFactory {
 		serverConfigFolder:       config.ServerConfigFolder,
 		containerRegistryServer:  config.ContainerRegistryServer,
 		buildImageNamespace:      config.BuildImageNamespace,
-		buildResultStore:         config.BuildResultStore,
+		buildStore:               config.BuildStore,
 		containerRegistryService: config.ContainerRegistryService,
 		basePath:                 config.BasePath,
 		loggerFactory:            config.LoggerFactory,
@@ -123,41 +121,18 @@ func (f *BuilderFactory) Create(p workspace.Project, gpc *gitprovider.GitProvide
 	}
 }
 
-func (f *BuilderFactory) CheckExistingBuild(p workspace.Project) (*BuildResult, error) {
+func (f *BuilderFactory) CheckExistingBuild(p workspace.Project) (*Build, error) {
 	hash, err := p.GetConfigHash()
 	if err != nil {
 		return nil, err
 	}
 
-	filePath := filepath.Join(f.serverConfigFolder, "builds", hash, "build.json")
-
-	_, err = os.Stat(filePath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	var result BuildResult
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&result)
+	build, err := f.buildStore.Find(hash)
 	if err != nil {
 		return nil, err
 	}
 
-	// If the builder registry changed, we need to rebuild and push again
-	if !strings.HasPrefix(result.ImageName, fmt.Sprintf("%s%s", f.containerRegistryServer, f.buildImageNamespace)) {
-		return nil, nil
-	}
-
-	return &result, nil
+	return build, nil
 }
 
 func (f *BuilderFactory) newDevcontainerBuilder(buildId string, p workspace.Project, gpc *gitprovider.GitProviderConfig, hash, projectDir string) (*DevcontainerBuilder, error) {
@@ -178,7 +153,7 @@ func (f *BuilderFactory) newDevcontainerBuilder(buildId string, p workspace.Proj
 			serverConfigFolder:       f.serverConfigFolder,
 			containerRegistryServer:  f.containerRegistryServer,
 			buildImageNamespace:      f.buildImageNamespace,
-			buildResultStore:         f.buildResultStore,
+			buildStore:               f.buildStore,
 			basePath:                 f.basePath,
 			loggerFactory:            f.loggerFactory,
 			defaultProjectImage:      f.defaultProjectImage,
