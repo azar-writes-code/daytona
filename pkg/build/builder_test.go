@@ -9,29 +9,12 @@ import (
 
 	"github.com/daytonaio/daytona/internal/testing/git/mocks"
 	t_build "github.com/daytonaio/daytona/internal/testing/server/build"
+	build_mocks "github.com/daytonaio/daytona/internal/testing/server/workspaces/mocks"
 	"github.com/daytonaio/daytona/pkg/build"
 	"github.com/daytonaio/daytona/pkg/git"
-	"github.com/daytonaio/daytona/pkg/gitprovider"
-	"github.com/daytonaio/daytona/pkg/workspace"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
-
-var project workspace.Project = workspace.Project{
-	Repository: &gitprovider.GitRepository{},
-	Build: &workspace.ProjectBuild{
-		Devcontainer: &workspace.ProjectBuildDevcontainer{
-			DevContainerFilePath: ".devcontainer/devcontainer.json",
-		},
-	},
-}
-
-var predefBuild build.Build = build.Build{
-	Hash:              "test-predef",
-	User:              "test-predef",
-	Image:             "test-predef",
-	ProjectVolumePath: "test-predef",
-}
 
 var expectedBuilds []*build.Build
 
@@ -58,8 +41,8 @@ func (s *BuilderTestSuite) SetupTest() {
 		},
 	})
 	s.mockGitService.On("CloneRepository", mock.Anything, mock.Anything).Return(nil)
-	s.builder, _ = factory.Create(project, nil)
-	err := s.buildStore.Save(&predefBuild)
+	s.builder, _ = factory.Create(build_mocks.MockProject, nil)
+	err := s.buildStore.Save(build_mocks.MockBuild)
 	if err != nil {
 		panic(err)
 	}
@@ -69,12 +52,12 @@ func TestBuilder(t *testing.T) {
 	suite.Run(t, NewBuilderTestSuite())
 }
 
-func (s *BuilderTestSuite) TestSaveBuilds() {
-	expectedBuilds = append(expectedBuilds, &predefBuild)
+func (s *BuilderTestSuite) TestSaveBuild() {
+	expectedBuilds = append(expectedBuilds, build_mocks.MockBuild)
 
 	require := s.Require()
 
-	err := s.builder.SaveBuilds(predefBuild)
+	err := s.builder.SaveBuild(*build_mocks.MockBuild)
 	require.NoError(err)
 
 	savedBuilds, err := s.buildStore.List()

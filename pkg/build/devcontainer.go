@@ -22,7 +22,6 @@ import (
 	"github.com/daytonaio/daytona/pkg/logs"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 )
@@ -53,12 +52,11 @@ func (b *DevcontainerBuilder) Build() (*Build, error) {
 	}
 
 	return &Build{
-		Hash:              b.hash,
-		State:             BuildStateSuccess,
-		Project:           b.project,
-		User:              b.user,
-		Image:             b.buildImage,
-		ProjectVolumePath: b.projectVolumePath,
+		Hash:    b.hash,
+		State:   BuildStateSuccess,
+		Project: b.project,
+		User:    b.user,
+		Image:   b.buildImage,
 	}, nil
 }
 
@@ -77,7 +75,7 @@ func (b *DevcontainerBuilder) CleanUp() error {
 		return err
 	}
 
-	err = os.RemoveAll(b.projectVolumePath)
+	err = os.RemoveAll(b.projectDir)
 	if err != nil {
 		return err
 	}
@@ -235,13 +233,6 @@ func (b *DevcontainerBuilder) startContainer() error {
 		},
 	}, &container.HostConfig{
 		Privileged: true,
-		Mounts: []mount.Mount{
-			{
-				Type:   mount.TypeBind,
-				Source: b.projectVolumePath,
-				Target: "/project",
-			},
-		},
 		PortBindings: nat.PortMap{
 			nat.Port(fmt.Sprintf("%d/tcp", b.builderDockerPort)): []nat.PortBinding{
 				{

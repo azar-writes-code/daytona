@@ -219,7 +219,7 @@ var ServeCmd = &cobra.Command{
 		})
 
 		buildPoller := build.NewPoller(build.PollerConfig{
-			Scheduler:          build.NewScheduler(),
+			Scheduler:          build.NewBuildScheduler(),
 			Interval:           POLLER_INTERVAL,
 			BuilderFactory:     builderFactory,
 			BuildStore:         buildStore,
@@ -243,6 +243,13 @@ var ServeCmd = &cobra.Command{
 		errCh := make(chan error)
 
 		err = server.Start(errCh)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Start build poller
+		log.Info("Starting builds poller")
+		err = server.BuildPoller.Start()
 		if err != nil {
 			log.Fatal(err)
 		}

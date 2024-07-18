@@ -11,30 +11,10 @@ import (
 	"github.com/daytonaio/daytona/internal/testing/server/workspaces/mocks"
 	"github.com/daytonaio/daytona/pkg/build"
 	"github.com/daytonaio/daytona/pkg/gitprovider"
-	"github.com/daytonaio/daytona/pkg/workspace"
+	"github.com/daytonaio/daytona/pkg/poller"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
-
-var pollerProject workspace.Project = workspace.Project{
-	Build: &workspace.ProjectBuild{
-		Devcontainer: &workspace.ProjectBuildDevcontainer{
-			DevContainerFilePath: ".devcontainer/devcontainer.json",
-		},
-	},
-	Repository: &gitprovider.GitRepository{
-		Url: "url",
-	},
-}
-
-var pollerBuild build.Build = build.Build{
-	Hash:              "test-poller",
-	User:              "test-poller",
-	Image:             "test-poller",
-	ProjectVolumePath: "test-poller",
-	State:             build.BuildStatePending,
-	Project:           pollerProject,
-}
 
 type PollerTestSuite struct {
 	suite.Suite
@@ -43,7 +23,7 @@ type PollerTestSuite struct {
 	mockBuilder            *mocks.MockBuilderPlugin
 	mockScheduler          *mocks.MockSchedulerPlugin
 	buildStore             build.Store
-	Poller                 build.IPoller
+	Poller                 poller.IPoller
 }
 
 func NewPollerTestSuite() *PollerTestSuite {
@@ -68,7 +48,7 @@ func (s *PollerTestSuite) SetupTest() {
 		GitProviderService: s.mockGitProviderService,
 	})
 
-	err := s.buildStore.Save(&pollerBuild)
+	err := s.buildStore.Save(mocks.MockBuild)
 	if err != nil {
 		s.T().Fatal(err)
 	}
@@ -99,7 +79,7 @@ func (s *PollerTestSuite) TestPoll() {
 
 	s.mockGitProviderService.On("GetConfigForUrl", mock.Anything).Return(&gpc, nil)
 	s.mockBuilderFactory.On("Create", mock.Anything, gpc).Return(s.mockBuilder, nil)
-	s.mockBuilder.On("Build").Return(&pollerBuild, nil)
+	s.mockBuilder.On("Build").Return(mocks.MockBuild, nil)
 	s.mockBuilder.On("Publish").Return(nil)
 	s.mockBuilder.On("CleanUp").Return(nil)
 

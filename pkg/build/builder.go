@@ -28,7 +28,7 @@ type IBuilder interface {
 	Build() (*Build, error)
 	CleanUp() error
 	Publish() error
-	SaveBuilds(r Build) error
+	SaveBuild(r Build) error
 }
 
 type Builder struct {
@@ -36,7 +36,7 @@ type Builder struct {
 	project           workspace.Project
 	gitProviderConfig *gitprovider.GitProviderConfig
 	hash              string
-	projectVolumePath string
+	projectDir        string
 
 	image                    string
 	containerRegistryService containerregistries.IContainerRegistryService
@@ -50,6 +50,6 @@ type Builder struct {
 	defaultProjectUser       string
 }
 
-func (b *Builder) SaveBuilds(r Build) error {
+func (b *Builder) SaveBuild(r Build) error {
 	return b.buildStore.Save(&r)
 }

@@ -51,14 +51,14 @@ type ProjectDTO struct {
 	Image       string           `json:"image"`
 	User        string           `json:"user"`
 	Build       *ProjectBuildDTO `json:"build,omitempty" gorm:"serializer:json"`
-	Repository  RepositoryDTO    `json:"repository"`
+	Repository  RepositoryDTO    `json:"repository" gorm:"serializer:json"`
 	WorkspaceId string           `json:"workspaceId"`
 	Target      string           `json:"target"`
 	ApiKey      string           `json:"apiKey"`
 	State       *ProjectStateDTO `json:"state,omitempty" gorm:"serializer:json"`
 }
 
-func ToProjectDTO(project *workspace.Project, workspace *workspace.Workspace) ProjectDTO {
+func ToProjectDTO(project *workspace.Project) ProjectDTO {
 	return ProjectDTO{
 		Name:        project.Name,
 		Image:       project.Image,
@@ -68,7 +68,7 @@ func ToProjectDTO(project *workspace.Project, workspace *workspace.Workspace) Pr
 		WorkspaceId: project.WorkspaceId,
 		Target:      project.Target,
 		State:       ToProjectStateDTO(project.State),
-		ApiKey:      workspace.ApiKey,
+		ApiKey:      project.ApiKey,
 	}
 }
 

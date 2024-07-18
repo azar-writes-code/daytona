@@ -7,61 +7,40 @@ import (
 	"fmt"
 
 	"github.com/daytonaio/daytona/pkg/gitprovider"
+	"github.com/daytonaio/daytona/pkg/poller"
+	"github.com/daytonaio/daytona/pkg/scheduler"
 	"github.com/daytonaio/daytona/pkg/server/gitproviders"
 	log "github.com/sirupsen/logrus"
 )
 
 type PollerConfig struct {
-	Scheduler          IScheduler
+	Scheduler          scheduler.IScheduler
 	Interval           string
 	BuilderFactory     IBuilderFactory
 	BuildStore         Store
 	GitProviderService gitproviders.IGitProviderService
 }
 
-type IPoller interface {
-	Start() error
-	Stop()
-	Poll()
-}
-
-type Poller struct {
-	scheduler          IScheduler
-	interval           string
+type BuildPoller struct {
+	poller.AbstractPoller
 	builderFactory     IBuilderFactory
 	buildStore         Store
 	gitProviderService gitproviders.IGitProviderService
 }
 
-func NewPoller(config PollerConfig) *Poller {
-	return &Poller{
-		scheduler:          config.Scheduler,
-		interval:           config.Interval,
+func NewPoller(config PollerConfig) *BuildPoller {
+	poller := &BuildPoller{
+		AbstractPoller:     *poller.NewPoller(config.Interval, config.Scheduler),
 		builderFactory:     config.BuilderFactory,
 		buildStore:         config.BuildStore,
 		gitProviderService: config.GitProviderService,
 	}
+	poller.AbstractPoller.IPoller = poller
+
+	return poller
 }
 
-func (p *Poller) Start() error {
-	err := p.scheduler.AddFunc(p.interval, func() {
-		p.Poll()
-	})
-	if err != nil {
-		return err
-	}
-
-	p.scheduler.Start()
-
-	return nil
-}
-
-func (p *Poller) Stop() {
-	log.Info("Stopping build poller")
-	p.scheduler.Stop()
-}
-
-func (p *Poller) Poll() {
+func (p *BuildPoller) Poll() {
 	builds, err := p.buildStore.FindAllByState(BuildStatePending)
 	if err != nil {
 		log.Error(err)
@@ -72,7 +51,7 @@ func (p *Poller) Poll() {
 	}
 }
 
-func (p *Poller) runBuildProcess(build *Build) {
+func (p *BuildPoller) runBuildProcess(build *Build) {
 	if build.Project.Build == nil {
 		return
 	}
@@ -99,9 +78,9 @@ func (p *Poller) runBuildProcess(build *Build) {
 	if err != nil {
 		p.handleBuildError(*build, builder, err)
 		return
-	} else {
-		build = result
 	}
+
+	build = result
 
 	err = builder.Publish()
 	if err != nil {
@@ -121,7 +100,7 @@ func (p *Poller) runBuildProcess(build *Build) {
 	}
 }
 
-func (p *Poller) handleBuildError(build Build, builder IBuilder, err error) {
+func (p *BuildPoller) handleBuildError(build Build, builder IBuilder, err error) {
 	var errMsg string
 	errMsg += "################################################\n"
 	errMsg += fmt.Sprintf("#### BUILD FAILED FOR PROJECT %s: %s\n", build.Project.Name, err.Error())

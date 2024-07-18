@@ -147,7 +147,7 @@ func (f *BuilderFactory) newDevcontainerBuilder(buildId string, p workspace.Proj
 			project:                  p,
 			gitProviderConfig:        gpc,
 			hash:                     hash,
-			projectVolumePath:        projectDir,
+			projectDir:               projectDir,
 			image:                    f.image,
 			containerRegistryService: f.containerRegistryService,
 			serverConfigFolder:       f.serverConfigFolder,

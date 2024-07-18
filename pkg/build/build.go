@@ -15,10 +15,9 @@ const (
 )
 
 type Build struct {
-	Hash              string            `json:"hash"`
-	State             BuildState        `json:"state"`
-	Project           workspace.Project `json:"project"`
-	User              string            `json:"user"`
-	Image             string            `json:"image"`
-	ProjectVolumePath string            `json:"projectVolumePath"`
+	Hash    string            `json:"hash"`
+	State   BuildState        `json:"state"`
+	Project workspace.Project `json:"project"`
+	User    string            `json:"user"`
+	Image   string            `json:"image"`
 } // @name Build
