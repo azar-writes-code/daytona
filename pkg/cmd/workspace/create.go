@@ -100,25 +100,28 @@ var CreateCmd = &cobra.Command{
 		visited := make(map[string]bool)
 
 		for i := range projects {
-			if projects[i].ExistingProjectConfigName != nil && *projects[i].ExistingProjectConfigName != "" {
+			if projects[i].ExistingProjectConfig != nil {
 				continue
 			}
-			if projects[i].Source == nil || projects[i].Source.Repository == nil || projects[i].Source.Repository.Url == nil {
+			if projects[i].NewProjectConfig == nil ||
+				projects[i].NewProjectConfig.Source == nil ||
+				projects[i].NewProjectConfig.Source.Repository == nil ||
+				projects[i].NewProjectConfig.Source.Repository.Url == nil {
 				log.Fatal("Error: repository url is required")
 			}
-			if visited[*projects[i].Source.Repository.Url] {
-				log.Fatalf("Error: duplicate repository url: %s", *projects[i].Source.Repository.Url)
+			if visited[*projects[i].NewProjectConfig.Source.Repository.Url] {
+				log.Fatalf("Error: duplicate repository url: %s", *projects[i].NewProjectConfig.Source.Repository.Url)
 			}
-			visited[*projects[i].Source.Repository.Url] = true
-			projects[i].EnvVars = workspace_util.GetEnvVariables(&projects[i], profileData)
+			visited[*projects[i].NewProjectConfig.Source.Repository.Url] = true
+			projects[i].NewProjectConfig.EnvVars = workspace_util.GetEnvVariables(&projects[i], profileData)
 		}
 
 		projectNames := []string{}
 		for _, project := range projects {
-			if project.ExistingProjectConfigName != nil && *project.ExistingProjectConfigName != "" {
-				projectNames = append(projectNames, *project.ExistingProjectConfigName)
-			} else if project.Name != nil {
-				projectNames = append(projectNames, *project.Name)
+			if project.ExistingProjectConfig != nil && *project.ExistingProjectConfig.Name != "" {
+				projectNames = append(projectNames, *project.ExistingProjectConfig.Name)
+			} else if project.NewProjectConfig != nil && project.NewProjectConfig.Name != nil {
+				projectNames = append(projectNames, *project.NewProjectConfig.Name)
 			}
 		}
 
@@ -353,11 +356,13 @@ func processCmdArguments(args []string, apiClient *apiclient.APIClient, projects
 	}
 
 	project := &apiclient.CreateProjectDTO{
-		Name: &projectName,
-		Source: &apiclient.CreateProjectConfigSourceDTO{
-			Repository: repoResponse,
+		NewProjectConfig: &apiclient.CreateProjectConfigDTO{
+			Name: &projectName,
+			Source: &apiclient.CreateProjectConfigSourceDTO{
+				Repository: repoResponse,
+			},
+			Build: &apiclient.ProjectBuild{},
 		},
-		Build: &apiclient.ProjectBuild{},
 	}
 
 	if builderFlag == create.DEVCONTAINER || devcontainerPathFlag != "" {
@@ -365,17 +370,17 @@ func processCmdArguments(args []string, apiClient *apiclient.APIClient, projects
 		if devcontainerPathFlag != "" {
 			devcontainerFilePath = devcontainerPathFlag
 		}
-		project.Build.Devcontainer = &apiclient.ProjectBuildDevcontainer{
+		project.NewProjectConfig.Build.Devcontainer = &apiclient.ProjectBuildDevcontainer{
 			DevContainerFilePath: &devcontainerFilePath,
 		}
 
 	}
 
 	if builderFlag == create.NONE || customImageFlag != "" || customImageUserFlag != "" {
-		project.Build = nil
+		project.NewProjectConfig.Build = nil
 		if customImageFlag != "" || customImageUserFlag != "" {
-			project.Image = &customImageFlag
-			project.User = &customImageUserFlag
+			project.NewProjectConfig.Image = &customImageFlag
+			project.NewProjectConfig.User = &customImageUserFlag
 		}
 	}
 
@@ -399,10 +404,10 @@ func waitForDial(tsConn *tsnet.Server, workspaceId string, projectName string) e
 
 func getWorkspaceFirstProjectName(project apiclient.CreateProjectDTO) string {
 	var firstProjectName string
-	if project.ExistingProjectConfigName != nil {
-		firstProjectName = *project.ExistingProjectConfigName
-	} else if project.Name != nil {
-		firstProjectName = *project.Name
+	if project.ExistingProjectConfig != nil && project.ExistingProjectConfig.Name != nil {
+		firstProjectName = *project.ExistingProjectConfig.Name
+	} else if project.NewProjectConfig != nil && project.NewProjectConfig.Name != nil {
+		firstProjectName = *project.NewProjectConfig.Name
 	}
 	return firstProjectName
 }

@@ -77,23 +77,31 @@ var projectConfigAddCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		if projects[0].Name == nil {
+		if len(projects) == 0 {
+			log.Fatal("no projects found")
+		}
+
+		if projects[0].NewProjectConfig == nil {
+			log.Fatal("project config is required")
+		}
+
+		if projects[0].NewProjectConfig.Name == nil {
 			log.Fatal("project config name is required")
 		}
 
-		err = create.RunSubmissionForm(&projectConfigName, *projects[0].Name, existingProjectConfigNames, &projects, projectDefaults)
+		err = create.RunSubmissionForm(&projectConfigName, *projects[0].NewProjectConfig.Name, existingProjectConfigNames, &projects, projectDefaults)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		newProjectConfig := apiclient.CreateProjectConfigDTO{
-			Name:  projects[0].Name,
-			Build: projects[0].Build,
-			Image: projects[0].Image,
-			User:  projects[0].User,
+			Name:  projects[0].NewProjectConfig.Name,
+			Build: projects[0].NewProjectConfig.Build,
+			Image: projects[0].NewProjectConfig.Image,
+			User:  projects[0].NewProjectConfig.User,
 		}
 
-		projects[0].EnvVars = workspace_util.GetEnvVariables(&projects[0], profileData)
+		projects[0].NewProjectConfig.EnvVars = workspace_util.GetEnvVariables(&projects[0], profileData)
 
 		res, err = apiClient.ProjectConfigAPI.SetProjectConfig(ctx).ProjectConfig(newProjectConfig).Execute()
 		if err != nil {

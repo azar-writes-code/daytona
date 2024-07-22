@@ -1289,29 +1289,11 @@ const docTemplate = `{
         "CreateProjectDTO": {
             "type": "object",
             "properties": {
-                "build": {
-                    "$ref": "#/definitions/ProjectBuild"
+                "existingProjectConfig": {
+                    "$ref": "#/definitions/ExistingProjectConfigDTO"
                 },
-                "envVars": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "existingProjectConfigName": {
-                    "type": "string"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "source": {
-                    "$ref": "#/definitions/CreateProjectConfigSourceDTO"
-                },
-                "user": {
-                    "type": "string"
+                "newProjectConfig": {
+                    "$ref": "#/definitions/CreateProjectConfigDTO"
                 }
             }
         },
@@ -1334,6 +1316,17 @@ const docTemplate = `{
                     }
                 },
                 "target": {
+                    "type": "string"
+                }
+            }
+        },
+        "ExistingProjectConfigDTO": {
+            "type": "object",
+            "properties": {
+                "branch": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }

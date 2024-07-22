@@ -100,7 +100,7 @@ func RenderSummary(name string, projectList []apiclient.CreateProjectDTO, defaul
 	}
 
 	for _, project := range projectList {
-		if project.Source == nil || project.Source.Repository == nil || project.Source.Repository.Url == nil {
+		if project.NewProjectConfig.Source == nil || project.NewProjectConfig.Source.Repository == nil || project.NewProjectConfig.Source.Repository.Url == nil {
 			return "", fmt.Errorf("repository is required")
 		}
 	}
@@ -109,9 +109,9 @@ func RenderSummary(name string, projectList []apiclient.CreateProjectDTO, defaul
 
 	for i := range projectList {
 		if len(projectList) == 1 {
-			output += fmt.Sprintf("%s - %s\n", lipgloss.NewStyle().Foreground(views.Green).Render("Project"), (*projectList[i].Source.Repository.Url))
+			output += fmt.Sprintf("%s - %s\n", lipgloss.NewStyle().Foreground(views.Green).Render("Project"), (*projectList[i].NewProjectConfig.Source.Repository.Url))
 		} else {
-			output += fmt.Sprintf("%s - %s\n", lipgloss.NewStyle().Foreground(views.Green).Render(fmt.Sprintf("%s #%d", "Project", i+1)), (*projectList[i].Source.Repository.Url))
+			output += fmt.Sprintf("%s - %s\n", lipgloss.NewStyle().Foreground(views.Green).Render(fmt.Sprintf("%s #%d", "Project", i+1)), (*projectList[i].NewProjectConfig.Source.Repository.Url))
 		}
 
 		projectBuildChoice, choiceName := getProjectBuildChoice(projectList[i], defaults)
@@ -128,37 +128,37 @@ func renderProjectDetails(project apiclient.CreateProjectDTO, buildChoice BuildC
 	output := projectDetailOutput(Build, choiceName)
 
 	if buildChoice == DEVCONTAINER {
-		if project.Build != nil {
-			if project.Build.Devcontainer != nil {
-				if project.Build.Devcontainer.DevContainerFilePath != nil {
+		if project.NewProjectConfig.Build != nil {
+			if project.NewProjectConfig.Build.Devcontainer != nil {
+				if project.NewProjectConfig.Build.Devcontainer.DevContainerFilePath != nil {
 					output += "\n"
-					output += projectDetailOutput(DevcontainerConfig, *project.Build.Devcontainer.DevContainerFilePath)
+					output += projectDetailOutput(DevcontainerConfig, *project.NewProjectConfig.Build.Devcontainer.DevContainerFilePath)
 				}
 			}
 		}
 	} else {
-		if project.Image != nil {
+		if project.NewProjectConfig.Image != nil {
 			if output != "" {
 				output += "\n"
 			}
-			output += projectDetailOutput(Image, *project.Image)
+			output += projectDetailOutput(Image, *project.NewProjectConfig.Image)
 		}
 
-		if project.User != nil {
+		if project.NewProjectConfig.User != nil {
 			if output != "" {
 				output += "\n"
 			}
-			output += projectDetailOutput(User, *project.User)
+			output += projectDetailOutput(User, *project.NewProjectConfig.User)
 		}
 	}
 
-	if project.EnvVars != nil && len(*project.EnvVars) > 0 {
+	if project.NewProjectConfig.EnvVars != nil && len(*project.NewProjectConfig.EnvVars) > 0 {
 		if output != "" {
 			output += "\n"
 		}
 
 		var envVars string
-		for key, val := range *project.EnvVars {
+		for key, val := range *project.NewProjectConfig.EnvVars {
 			envVars += fmt.Sprintf("%s=%s; ", key, val)
 		}
 		output += projectDetailOutput(EnvVars, strings.TrimSuffix(envVars, "; "))
@@ -172,14 +172,14 @@ func projectDetailOutput(projectDetailKey ProjectDetail, projectDetailValue stri
 }
 
 func getProjectBuildChoice(project apiclient.CreateProjectDTO, defaults *ProjectDefaults) (BuildChoice, string) {
-	if project.Build == nil {
-		if *project.Image == *defaults.Image && *project.User == *defaults.ImageUser {
+	if project.NewProjectConfig.Build == nil {
+		if *project.NewProjectConfig.Image == *defaults.Image && *project.NewProjectConfig.User == *defaults.ImageUser {
 			return NONE, "None"
 		} else {
 			return CUSTOMIMAGE, "Custom Image"
 		}
 	} else {
-		if project.Build.Devcontainer != nil {
+		if project.NewProjectConfig.Build.Devcontainer != nil {
 			return DEVCONTAINER, "Devcontainer"
 		} else {
 			return AUTOMATIC, "Automatic"

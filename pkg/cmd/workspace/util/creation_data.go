@@ -52,7 +52,9 @@ func GetProjectsCreationDataFromPrompt(config ProjectsDataPromptConfig) ([]apicl
 
 			if *projectConfig.Name != selection.BlankProjectIdentifier {
 				projectList = append(projectList, apiclient.CreateProjectDTO{
-					ExistingProjectConfigName: projectConfig.Name,
+					ExistingProjectConfig: &apiclient.ExistingProjectConfigDTO{
+						Name: projectConfig.Name,
+					},
 				})
 				continue
 			}
@@ -93,14 +95,16 @@ func GetProjectsCreationDataFromPrompt(config ProjectsDataPromptConfig) ([]apicl
 
 func newCreateProjectDTO(config ProjectsDataPromptConfig, providerRepo *apiclient.GitRepository, providerRepoName string) apiclient.CreateProjectDTO {
 	project := apiclient.CreateProjectDTO{
-		Name: &providerRepoName,
-		Source: &apiclient.CreateProjectConfigSourceDTO{
-			Repository: providerRepo,
+		NewProjectConfig: &apiclient.CreateProjectConfigDTO{
+			Name: &providerRepoName,
+			Source: &apiclient.CreateProjectConfigSourceDTO{
+				Repository: providerRepo,
+			},
+			Build:   &apiclient.ProjectBuild{},
+			Image:   config.Defaults.Image,
+			User:    config.Defaults.ImageUser,
+			EnvVars: &map[string]string{},
 		},
-		Build:   &apiclient.ProjectBuild{},
-		Image:   config.Defaults.Image,
-		User:    config.Defaults.ImageUser,
-		EnvVars: &map[string]string{},
 	}
 
 	return project
@@ -156,8 +160,8 @@ func GetEnvVariables(project *apiclient.CreateProjectDTO, profileData *apiclient
 		}
 	}
 
-	if project.EnvVars != nil {
-		for k, v := range *project.EnvVars {
+	if project.NewProjectConfig.EnvVars != nil {
+		for k, v := range *project.NewProjectConfig.EnvVars {
 			if strings.HasPrefix(v, "$") {
 				env, ok := os.LookupEnv(v[1:])
 				if ok {

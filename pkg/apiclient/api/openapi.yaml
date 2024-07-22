@@ -954,87 +954,84 @@ components:
       type: object
     CreateProjectDTO:
       example:
-        image: image
-        build:
-          devcontainer:
-            devContainerFilePath: devContainerFilePath
-        envVars:
-          key: envVars
-        existingProjectConfigName: existingProjectConfigName
-        name: name
-        source:
-          repository:
-            owner: owner
-            path: path
-            name: name
-            id: id
-            source: source
-            prNumber: 0
-            branch: branch
-            sha: sha
-            url: url
-        user: user
+        newProjectConfig:
+          image: image
+          build:
+            devcontainer:
+              devContainerFilePath: devContainerFilePath
+          envVars:
+            key: envVars
+          name: name
+          source:
+            repository:
+              owner: owner
+              path: path
+              name: name
+              id: id
+              source: source
+              prNumber: 0
+              branch: branch
+              sha: sha
+              url: url
+          user: user
+        existingProjectConfig:
+          name: name
+          branch: branch
       properties:
-        build:
-          $ref: '#/components/schemas/ProjectBuild'
-        envVars:
-          additionalProperties:
-            type: string
-          type: object
-        existingProjectConfigName:
-          type: string
-        image:
-          type: string
-        name:
-          type: string
-        source:
-          $ref: '#/components/schemas/CreateProjectConfigSourceDTO'
-        user:
-          type: string
+        existingProjectConfig:
+          $ref: '#/components/schemas/ExistingProjectConfigDTO'
+        newProjectConfig:
+          $ref: '#/components/schemas/CreateProjectConfigDTO'
       type: object
     CreateWorkspaceDTO:
       example:
         projects:
-        - image: image
-          build:
-            devcontainer:
-              devContainerFilePath: devContainerFilePath
-          envVars:
-            key: envVars
-          existingProjectConfigName: existingProjectConfigName
-          name: name
-          source:
-            repository:
-              owner: owner
-              path: path
-              name: name
-              id: id
-              source: source
-              prNumber: 0
-              branch: branch
-              sha: sha
-              url: url
-          user: user
-        - image: image
-          build:
-            devcontainer:
-              devContainerFilePath: devContainerFilePath
-          envVars:
-            key: envVars
-          existingProjectConfigName: existingProjectConfigName
-          name: name
-          source:
-            repository:
-              owner: owner
-              path: path
-              name: name
-              id: id
-              source: source
-              prNumber: 0
-              branch: branch
-              sha: sha
-              url: url
-          user: user
+        - newProjectConfig:
+            image: image
+            build:
+              devcontainer:
+                devContainerFilePath: devContainerFilePath
+            envVars:
+              key: envVars
+            name: name
+            source:
+              repository:
+                owner: owner
+                path: path
+                name: name
+                id: id
+                source: source
+                prNumber: 0
+                branch: branch
+                sha: sha
+                url: url
+            user: user
+          existingProjectConfig:
+            name: name
+            branch: branch
+        - newProjectConfig:
+            image: image
+            build:
+              devcontainer:
+                devContainerFilePath: devContainerFilePath
+            envVars:
+              key: envVars
+            name: name
+            source:
+              repository:
+                owner: owner
+                path: path
+                name: name
+                id: id
+                source: source
+                prNumber: 0
+                branch: branch
+                sha: sha
+                url: url
+            user: user
+          existingProjectConfig:
+            name: name
+            branch: branch
         name: name
         id: id
         target: target
@@ -1051,6 +1048,16 @@ components:
           type: string
       required:
       - projects
+      type: object
+    ExistingProjectConfigDTO:
+      example:
+        name: name
+        branch: branch
+      properties:
+        branch:
+          type: string
+        name:
+          type: string
       type: object
     FRPSConfig:
       example:

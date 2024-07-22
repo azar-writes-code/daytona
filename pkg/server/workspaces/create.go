@@ -47,49 +47,50 @@ func (s *WorkspaceService) CreateWorkspace(req dto.CreateWorkspaceDTO) (*workspa
 
 	for _, p := range req.Projects {
 		isValidProjectName := regexp.MustCompile(`^[a-zA-Z0-9-_.]+$`).MatchString
-		if !isValidProjectName(p.Name) {
+		if !isValidProjectName(p.NewProjectConfig.Name) {
 			return nil, ErrInvalidProjectName
 		}
 
-		if p.Source.Repository != nil && p.Source.Repository.Sha == "" {
-			sha, err := s.gitProviderService.GetLastCommitSha(p.Source.Repository)
+		if p.NewProjectConfig.Source.Repository != nil && p.NewProjectConfig.Source.Repository != nil && p.NewProjectConfig.Source.Repository.Sha == "" {
+			sha, err := s.gitProviderService.GetLastCommitSha(p.NewProjectConfig.Source.Repository)
 			if err != nil {
 				return nil, err
 			}
-			p.Source.Repository.Sha = sha
+			p.NewProjectConfig.Source.Repository.Sha = sha
 		}
 
-		apiKey, err := s.apiKeyService.Generate(apikey.ApiKeyTypeProject, fmt.Sprintf("%s/%s", w.Id, p.Name))
+		apiKey, err := s.apiKeyService.Generate(apikey.ApiKeyTypeProject, fmt.Sprintf("%s/%s", w.Id, p.NewProjectConfig.Name))
 		if err != nil {
 			return nil, err
 		}
 
 		var pc *config.ProjectConfig
 
-		if p.ExistingProjectConfigName == "" {
+		if p.ExistingProjectConfig == nil {
 			projectImage := s.defaultProjectImage
-			if p.Image != nil {
-				projectImage = *p.Image
+			if p.NewProjectConfig.Image != nil {
+				projectImage = *p.NewProjectConfig.Image
 			}
 
 			projectUser := s.defaultProjectUser
-			if p.User != nil {
-				projectUser = *p.User
+			if p.NewProjectConfig.User != nil {
+				projectUser = *p.NewProjectConfig.User
 			}
 
 			pc = &config.ProjectConfig{
-				Name:       p.Name,
+				Name:       p.NewProjectConfig.Name,
 				Image:      projectImage,
 				User:       projectUser,
-				Build:      p.Build,
-				Repository: p.Source.Repository,
-				EnvVars:    p.EnvVars,
+				Build:      p.NewProjectConfig.Build,
+				Repository: p.NewProjectConfig.Source.Repository,
+				EnvVars:    p.NewProjectConfig.EnvVars,
 			}
 		} else {
-			pc, err = s.projectConfigService.Find(p.ExistingProjectConfigName)
+			pc, err = s.projectConfigService.Find(p.ExistingProjectConfig.Name)
 			if err != nil {
 				return nil, err
 			}
+			pc.Repository.Branch = &p.ExistingProjectConfig.Branch
 		}
 
 		p := &project.Project{

@@ -43,22 +43,10 @@ definitions:
     type: object
   CreateProjectDTO:
     properties:
-      build:
-        $ref: '#/definitions/ProjectBuild'
-      envVars:
-        additionalProperties:
-          type: string
-        type: object
-      existingProjectConfigName:
-        type: string
-      image:
-        type: string
-      name:
-        type: string
-      source:
-        $ref: '#/definitions/CreateProjectConfigSourceDTO'
-      user:
-        type: string
+      existingProjectConfig:
+        $ref: '#/definitions/ExistingProjectConfigDTO'
+      newProjectConfig:
+        $ref: '#/definitions/CreateProjectConfigDTO'
     type: object
   CreateWorkspaceDTO:
     properties:
@@ -74,6 +62,13 @@ definitions:
         type: string
     required:
     - projects
+    type: object
+  ExistingProjectConfigDTO:
+    properties:
+      branch:
+        type: string
+      name:
+        type: string
     type: object
   FRPSConfig:
     properties:

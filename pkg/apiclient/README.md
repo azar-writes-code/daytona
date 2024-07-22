@@ -131,6 +131,7 @@ Class | Method | HTTP request | Description
  - [CreateProjectConfigSourceDTO](docs/CreateProjectConfigSourceDTO.md)
  - [CreateProjectDTO](docs/CreateProjectDTO.md)
  - [CreateWorkspaceDTO](docs/CreateWorkspaceDTO.md)
+ - [ExistingProjectConfigDTO](docs/ExistingProjectConfigDTO.md)
  - [FRPSConfig](docs/FRPSConfig.md)
  - [FileStatus](docs/FileStatus.md)
  - [GitBranch](docs/GitBranch.md)

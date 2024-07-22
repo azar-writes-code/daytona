@@ -19,13 +19,8 @@ var _ MappedNullable = &CreateProjectDTO{}
 
 // CreateProjectDTO struct for CreateProjectDTO
 type CreateProjectDTO struct {
-	Build                     *ProjectBuild                 `json:"build,omitempty"`
-	EnvVars                   *map[string]string            `json:"envVars,omitempty"`
-	ExistingProjectConfigName *string                       `json:"existingProjectConfigName,omitempty"`
-	Image                     *string                       `json:"image,omitempty"`
-	Name                      *string                       `json:"name,omitempty"`
-	Source                    *CreateProjectConfigSourceDTO `json:"source,omitempty"`
-	User                      *string                       `json:"user,omitempty"`
+	ExistingProjectConfig *ExistingProjectConfigDTO `json:"existingProjectConfig,omitempty"`
+	NewProjectConfig      *CreateProjectConfigDTO   `json:"newProjectConfig,omitempty"`
 }
 
 // NewCreateProjectDTO instantiates a new CreateProjectDTO object
@@ -45,228 +40,68 @@ func NewCreateProjectDTOWithDefaults() *CreateProjectDTO {
 	return &this
 }
 
-// GetBuild returns the Build field value if set, zero value otherwise.
-func (o *CreateProjectDTO) GetBuild() ProjectBuild {
-	if o == nil || IsNil(o.Build) {
-		var ret ProjectBuild
+// GetExistingProjectConfig returns the ExistingProjectConfig field value if set, zero value otherwise.
+func (o *CreateProjectDTO) GetExistingProjectConfig() ExistingProjectConfigDTO {
+	if o == nil || IsNil(o.ExistingProjectConfig) {
+		var ret ExistingProjectConfigDTO
 		return ret
 	}
-	return *o.Build
+	return *o.ExistingProjectConfig
 }
 
-// GetBuildOk returns a tuple with the Build field value if set, nil otherwise
+// GetExistingProjectConfigOk returns a tuple with the ExistingProjectConfig field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *CreateProjectDTO) GetBuildOk() (*ProjectBuild, bool) {
-	if o == nil || IsNil(o.Build) {
+func (o *CreateProjectDTO) GetExistingProjectConfigOk() (*ExistingProjectConfigDTO, bool) {
+	if o == nil || IsNil(o.ExistingProjectConfig) {
 		return nil, false
 	}
-	return o.Build, true
+	return o.ExistingProjectConfig, true
 }
 
-// HasBuild returns a boolean if a field has been set.
-func (o *CreateProjectDTO) HasBuild() bool {
-	if o != nil && !IsNil(o.Build) {
+// HasExistingProjectConfig returns a boolean if a field has been set.
+func (o *CreateProjectDTO) HasExistingProjectConfig() bool {
+	if o != nil && !IsNil(o.ExistingProjectConfig) {
 		return true
 	}
 
 	return false
 }
 
-// SetBuild gets a reference to the given ProjectBuild and assigns it to the Build field.
-func (o *CreateProjectDTO) SetBuild(v ProjectBuild) {
-	o.Build = &v
+// SetExistingProjectConfig gets a reference to the given ExistingProjectConfigDTO and assigns it to the ExistingProjectConfig field.
+func (o *CreateProjectDTO) SetExistingProjectConfig(v ExistingProjectConfigDTO) {
+	o.ExistingProjectConfig = &v
 }
 
-// GetEnvVars returns the EnvVars field value if set, zero value otherwise.
-func (o *CreateProjectDTO) GetEnvVars() map[string]string {
-	if o == nil || IsNil(o.EnvVars) {
-		var ret map[string]string
+// GetNewProjectConfig returns the NewProjectConfig field value if set, zero value otherwise.
+func (o *CreateProjectDTO) GetNewProjectConfig() CreateProjectConfigDTO {
+	if o == nil || IsNil(o.NewProjectConfig) {
+		var ret CreateProjectConfigDTO
 		return ret
 	}
-	return *o.EnvVars
+	return *o.NewProjectConfig
 }
 
-// GetEnvVarsOk returns a tuple with the EnvVars field value if set, nil otherwise
+// GetNewProjectConfigOk returns a tuple with the NewProjectConfig field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *CreateProjectDTO) GetEnvVarsOk() (*map[string]string, bool) {
-	if o == nil || IsNil(o.EnvVars) {
+func (o *CreateProjectDTO) GetNewProjectConfigOk() (*CreateProjectConfigDTO, bool) {
+	if o == nil || IsNil(o.NewProjectConfig) {
 		return nil, false
 	}
-	return o.EnvVars, true
+	return o.NewProjectConfig, true
 }
 
-// HasEnvVars returns a boolean if a field has been set.
-func (o *CreateProjectDTO) HasEnvVars() bool {
-	if o != nil && !IsNil(o.EnvVars) {
+// HasNewProjectConfig returns a boolean if a field has been set.
+func (o *CreateProjectDTO) HasNewProjectConfig() bool {
+	if o != nil && !IsNil(o.NewProjectConfig) {
 		return true
 	}
 
 	return false
 }
 
-// SetEnvVars gets a reference to the given map[string]string and assigns it to the EnvVars field.
-func (o *CreateProjectDTO) SetEnvVars(v map[string]string) {
-	o.EnvVars = &v
-}
-
-// GetExistingProjectConfigName returns the ExistingProjectConfigName field value if set, zero value otherwise.
-func (o *CreateProjectDTO) GetExistingProjectConfigName() string {
-	if o == nil || IsNil(o.ExistingProjectConfigName) {
-		var ret string
-		return ret
-	}
-	return *o.ExistingProjectConfigName
-}
-
-// GetExistingProjectConfigNameOk returns a tuple with the ExistingProjectConfigName field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *CreateProjectDTO) GetExistingProjectConfigNameOk() (*string, bool) {
-	if o == nil || IsNil(o.ExistingProjectConfigName) {
-		return nil, false
-	}
-	return o.ExistingProjectConfigName, true
-}
-
-// HasExistingProjectConfigName returns a boolean if a field has been set.
-func (o *CreateProjectDTO) HasExistingProjectConfigName() bool {
-	if o != nil && !IsNil(o.ExistingProjectConfigName) {
-		return true
-	}
-
-	return false
-}
-
-// SetExistingProjectConfigName gets a reference to the given string and assigns it to the ExistingProjectConfigName field.
-func (o *CreateProjectDTO) SetExistingProjectConfigName(v string) {
-	o.ExistingProjectConfigName = &v
-}
-
-// GetImage returns the Image field value if set, zero value otherwise.
-func (o *CreateProjectDTO) GetImage() string {
-	if o == nil || IsNil(o.Image) {
-		var ret string
-		return ret
-	}
-	return *o.Image
-}
-
-// GetImageOk returns a tuple with the Image field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *CreateProjectDTO) GetImageOk() (*string, bool) {
-	if o == nil || IsNil(o.Image) {
-		return nil, false
-	}
-	return o.Image, true
-}
-
-// HasImage returns a boolean if a field has been set.
-func (o *CreateProjectDTO) HasImage() bool {
-	if o != nil && !IsNil(o.Image) {
-		return true
-	}
-
-	return false
-}
-
-// SetImage gets a reference to the given string and assigns it to the Image field.
-func (o *CreateProjectDTO) SetImage(v string) {
-	o.Image = &v
-}
-
-// GetName returns the Name field value if set, zero value otherwise.
-func (o *CreateProjectDTO) GetName() string {
-	if o == nil || IsNil(o.Name) {
-		var ret string
-		return ret
-	}
-	return *o.Name
-}
-
-// GetNameOk returns a tuple with the Name field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *CreateProjectDTO) GetNameOk() (*string, bool) {
-	if o == nil || IsNil(o.Name) {
-		return nil, false
-	}
-	return o.Name, true
-}
-
-// HasName returns a boolean if a field has been set.
-func (o *CreateProjectDTO) HasName() bool {
-	if o != nil && !IsNil(o.Name) {
-		return true
-	}
-
-	return false
-}
-
-// SetName gets a reference to the given string and assigns it to the Name field.
-func (o *CreateProjectDTO) SetName(v string) {
-	o.Name = &v
-}
-
-// GetSource returns the Source field value if set, zero value otherwise.
-func (o *CreateProjectDTO) GetSource() CreateProjectConfigSourceDTO {
-	if o == nil || IsNil(o.Source) {
-		var ret CreateProjectConfigSourceDTO
-		return ret
-	}
-	return *o.Source
-}
-
-// GetSourceOk returns a tuple with the Source field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *CreateProjectDTO) GetSourceOk() (*CreateProjectConfigSourceDTO, bool) {
-	if o == nil || IsNil(o.Source) {
-		return nil, false
-	}
-	return o.Source, true
-}
-
-// HasSource returns a boolean if a field has been set.
-func (o *CreateProjectDTO) HasSource() bool {
-	if o != nil && !IsNil(o.Source) {
-		return true
-	}
-
-	return false
-}
-
-// SetSource gets a reference to the given CreateProjectConfigSourceDTO and assigns it to the Source field.
-func (o *CreateProjectDTO) SetSource(v CreateProjectConfigSourceDTO) {
-	o.Source = &v
-}
-
-// GetUser returns the User field value if set, zero value otherwise.
-func (o *CreateProjectDTO) GetUser() string {
-	if o == nil || IsNil(o.User) {
-		var ret string
-		return ret
-	}
-	return *o.User
-}
-
-// GetUserOk returns a tuple with the User field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *CreateProjectDTO) GetUserOk() (*string, bool) {
-	if o == nil || IsNil(o.User) {
-		return nil, false
-	}
-	return o.User, true
-}
-
-// HasUser returns a boolean if a field has been set.
-func (o *CreateProjectDTO) HasUser() bool {
-	if o != nil && !IsNil(o.User) {
-		return true
-	}
-
-	return false
-}
-
-// SetUser gets a reference to the given string and assigns it to the User field.
-func (o *CreateProjectDTO) SetUser(v string) {
-	o.User = &v
+// SetNewProjectConfig gets a reference to the given CreateProjectConfigDTO and assigns it to the NewProjectConfig field.
+func (o *CreateProjectDTO) SetNewProjectConfig(v CreateProjectConfigDTO) {
+	o.NewProjectConfig = &v
 }
 
 func (o CreateProjectDTO) MarshalJSON() ([]byte, error) {
@@ -279,26 +114,11 @@ func (o CreateProjectDTO) MarshalJSON() ([]byte, error) {
 
 func (o CreateProjectDTO) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Build) {
-		toSerialize["build"] = o.Build
+	if !IsNil(o.ExistingProjectConfig) {
+		toSerialize["existingProjectConfig"] = o.ExistingProjectConfig
 	}
-	if !IsNil(o.EnvVars) {
-		toSerialize["envVars"] = o.EnvVars
-	}
-	if !IsNil(o.ExistingProjectConfigName) {
-		toSerialize["existingProjectConfigName"] = o.ExistingProjectConfigName
-	}
-	if !IsNil(o.Image) {
-		toSerialize["image"] = o.Image
-	}
-	if !IsNil(o.Name) {
-		toSerialize["name"] = o.Name
-	}
-	if !IsNil(o.Source) {
-		toSerialize["source"] = o.Source
-	}
-	if !IsNil(o.User) {
-		toSerialize["user"] = o.User
+	if !IsNil(o.NewProjectConfig) {
+		toSerialize["newProjectConfig"] = o.NewProjectConfig
 	}
 	return toSerialize, nil
 }
